@@ -25,6 +25,7 @@ pipeline {
                 echo 'pushing'
                     sh("docker login -u $DOCKER_CREDS_USR -p $DOCKER_CREDS_PSW")
                     sh "docker push $DOCKER_CREDS_USR/website:latest"
+                echo 'done'
             }
         }
     }
