@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label any
+        label 'Kiwi'
     }
     environment {
         DOCKER_CREDS = credentials('docker')
