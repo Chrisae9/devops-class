@@ -15,7 +15,7 @@ RUN jlink \
          --compress=2 \
          --output /javaruntime
 
-FROM docker:dind
+FROM docker:18-dind
 LABEL maintainer="chrisae9@gmail.com"
 
 ARG VERSION=4.12
@@ -52,4 +52,5 @@ RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
 VOLUME /home/${user}/.jenkins
 VOLUME ${AGENT_WORKDIR}
 WORKDIR /home/${user}
+
 

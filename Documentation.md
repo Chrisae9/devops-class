@@ -86,7 +86,7 @@ For more info [here](/agent/Dockerfile) is the Dockerfile for the custom agent.
 
 Temporary container, for permanent remove the `--rm` flag:
 ```
-docker run -i --rm --net="host" --name agent --privileged -u root --init chrisae9/dockeragent:latest java -jar /usr/share/jenkins/agent.jar  -jnlpUrl http://localhost:8080/computer/Kiwi/jenkins-agent.jnlp -secret <SECRET> -workDir "/home/jenkins/agent"
+docker run -i --rm --net="host" --name agent -v /var/run/docker.sock:/var/run/docker.sock --privileged -u root --init chrisae9/dockeragent:latest java -jar /usr/share/jenkins/agent.jar  -jnlpUrl http://localhost:8080/computer/Kiwi/jenkins-agent.jnlp -secret <SECRET> -workDir "/home/jenkins/agent"
 
 ```
 
@@ -113,7 +113,7 @@ Jenkins Master additional config steps:
 
 ### Enable GitHub Webhooks for Push Related events
 - Go to GitHub repository -> settings -> Webhooks -> New
-- Add `https://jenkins.chis.dev/github-webhook` as payload URL
+- Add `https://jenkins.chis.dev/github-webhook/` as payload URL (make sure slash is at the end)
 - Create a new credential to house GitHub webhook credentials.
 
 
