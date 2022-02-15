@@ -1,10 +1,10 @@
 pipeline {
     agent {
-        label 'kiwi' //github webhook test 2
+        label 'kiwi'
     }
     environment {
         DOCKER_CREDS = credentials('docker')
-        // DOCKER_CREDS, DOCKER_CREDS_USR, DOCKER_CREDS_PSW
+    // DOCKER_CREDS, DOCKER_CREDS_USR, DOCKER_CREDS_PSW
     }
     stages {
         stage('Build') {
@@ -22,11 +22,11 @@ pipeline {
             agent any
             steps {
                 echo 'pushing'
-    
+
                     sh("docker login -u $DOCKER_CREDS_USR -p $DOCKER_CREDS_PSW")
                     sh "docker push $DOCKER_CREDS_USR/website:latest"
-                }
             }
         }
     }
 }
+
