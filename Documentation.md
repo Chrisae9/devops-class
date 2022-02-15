@@ -52,6 +52,10 @@ Follow setup process and proceed to configuring first agent node.
 - Create nginx file `/etc/nginx/sites-available/jenkins.chis.dev`
 
 ```bash
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  '' close;
+}
 server {
     listen          80;
 
@@ -60,12 +64,13 @@ server {
     error_log /var/log/nginx/jenkins.error.log;
 
     location / {
+        proxy_set_header   Connection        $connection_upgrade;
+        proxy_set_header   Upgrade           $http_upgrade;
         include /etc/nginx/proxy_params;
         proxy_pass http://localhost:8080;
         proxy_read_timeout  90s;
-        proxy_redirect http://localhost:8080 https://jenkins.chis.dev;
+        proxy_redirect http://localhost:8080 http://jenkins.chis.dev;
     }
-
 }
 ```
 
@@ -74,12 +79,15 @@ server {
 - Restart nginx `systemctl restart nginx.service`
 - Verify webiste is up and running https://jenkins.chis.dev
 
-## Configure Docker Jenkins Agent
+## Configure Docker Jenkins Agent with Docker in Docker
 https://github.com/jenkinsci/docker-agent
 
-Permanent container, for temp add `--rm` flag
+For more info [here](/agent/Dockerfile) is the Dockerfile for the custom agent.
+
+Temporary container, for permanent remove the `--rm` flag:
 ```
-docker run -i -d --net="host" --name agent --init jenkins/agent:latest-jdk11 java -jar /usr/share/jenkins/agent.jar  -jnlpUrl http://localhost:8080/computer/Kiwi/jenkins-agent.jnlp -secret <SECRET> -workDir "/home/jenkins/agent"
+docker run -i --rm --net="host" --name agent --privileged -u root --init chrisae9/dockeragent:latest java -jar /usr/share/jenkins/agent.jar  -jnlpUrl http://localhost:8080/computer/Kiwi/jenkins-agent.jnlp -secret <SECRET> -workDir "/home/jenkins/agent"
+
 ```
 
 Jenkins Master additional config steps:
@@ -91,8 +99,8 @@ Jenkins Master additional config steps:
 ### GitHub Personal Access Token
 - Go to User Settings -> Dev Settings -> Personal Access Tokens
 - Generate new token called `jenkins`
-- enable repo flag
-- save for next step
+- Enable repo flag
+- Save token for next step
 
 ### Make Pipeline
 - Create a new `Multibranch Pipeline` on Jenkins Master named `docker-jenkins-pipeline`
@@ -109,4 +117,6 @@ Jenkins Master additional config steps:
 - Create a new credential to house GitHub webhook credentials.
 
 
+### Adding Docker Credentials
 
+- Create an account on Docker Hub and add global username and password credentials to Jenkins
