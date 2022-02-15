@@ -16,11 +16,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'deploying'
-                try {
-                    sh('docker stop website')
-                } catch (err) {
-                    echo 'website not running'
-                }
+                sh('docker stop website || true && docker rm website || true')
                 sh("docker run --rm -d -p 8000:8025 --name website $DOCKER_CREDS_USR/website:latest")
             }
         }
