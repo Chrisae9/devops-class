@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'kiwi' //github webhook test
+        label 'kiwi' //github webhook test 2
     }
     environment {
         DOCKER_CREDS = credentials('docker')
