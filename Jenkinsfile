@@ -17,7 +17,7 @@ pipeline {
             steps {
                 echo 'deploying'
                 sh('docker stop website || true && docker rm website || true')
-                sh("docker run --rm -d -p 8025:8000 --name website $DOCKER_CREDS_USR/website:latest")
+                sh("docker run -p 8000:9000 --rm -d --name website $DOCKER_CREDS_USR/website:latest")
             }
         }
         stage('Docker Push') {
