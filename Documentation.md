@@ -1,4 +1,15 @@
-# Docker Jenkins Pipeline Process
+# Docker Jenkins Pipeline Documented Process
+
+## Summary
+
+- Jenkins is running through a Docker Container on my personal website at https://jenkins.chis.dev.
+- There is a connected [Jenkins Agent](/agent/Dockerfile) that is running in a privileged docker container to leverage Docker in Docker.
+- This GitHub repo has a webhook that sends a POST to https://jenkins.chis.dev/github-webhook/ when code is committed.
+- There is a project in Jenkins that will recieve this POST data and kick off an automated build.
+- The build will run this [Jenkinsfile](./Jenkinsfile) which will:
+  - Build the [Dockerfile](./Dockerfile) image that will be used to containerize the website located under [website/](./website/)
+  - Deploy the website image by starting a docker container that hosts the static folder using nginx on port 9000
+  - Push the docker website image to docker hub. [Docker Hub Image](https://hub.docker.com/repository/docker/chrisae9/website).
 
 ## Installing Docker
 https://docs.docker.com/engine/install/ubuntu/
@@ -29,7 +40,7 @@ https://hub.docker.com/r/jenkins/jenkins
 sudo docker pull jenkins/jenkins:lts-jdk11
 ```
 
-## Running Docker Jenkins
+### Running Docker Jenkins
 https://github.com/jenkinsci/docker/blob/master/README.md
 
 Run the docker container:
@@ -46,7 +57,7 @@ Password located at: /var/jenkins_home/secrets/initialAdminPassword
 
 Follow setup process and proceed to configuring first agent node.
 
-## Configure Jenkins to Run on Personal Website
+## Configure Jenkins to Run on Personal Website (extra)
 
 - Make `jenkins.chis.dev` entry on https://cloudflare.com
 - Create nginx file `/etc/nginx/sites-available/jenkins.chis.dev`
@@ -79,10 +90,10 @@ server {
 - Restart nginx `systemctl restart nginx.service`
 - Verify webiste is up and running https://jenkins.chis.dev
 
-## Configure Docker Jenkins Agent with Docker in Docker
+## Configure Docker Jenkins Agent with Docker in Docker (dind)
 https://github.com/jenkinsci/docker-agent
 
-For more info [here](/agent/Dockerfile) is the Dockerfile for the custom agent.
+[Here](/agent/Dockerfile) is the Dockerfile for the custom agent.
 
 Temporary container, for permanent remove the `--rm` flag:
 ```
@@ -116,7 +127,30 @@ Jenkins Master additional config steps:
 - Add `https://jenkins.chis.dev/github-webhook/` as payload URL (make sure slash is at the end)
 - Create a new credential to house GitHub webhook credentials.
 
+## Create Containerized Website for CI/CD Pipeline
+https://github.com/gatsbyjs/gatsby-starter-default
 
-### Adding Docker Credentials
+- First create the gatsby starter by running `gatsby init new`
+- Follow the on screen steps to name the website and create a topdir folder called `website`
+
+[Here](./Dockerfile) is the Dockerfile for building the gatsby website.
+
+In this file there are steps to copying the website and building using a node image.
+After the website is built, it is hosted on a nginx image.
+
+## Adding Docker Credentials
 
 - Create an account on Docker Hub and add global username and password credentials to Jenkins
+
+## Creating the Jenkinsfile
+
+[Here](./Jenkinsfile) is the main Jenkinsfile.
+
+Steps:
+- Build
+  - This builds the newly created website container
+- Deploy
+  - Removes previously running website container
+  - Runs a new website container binding hosted website to port 9000
+- Docker Push
+  - Takes the built image and pushes it to Docker Hub using provided credentials
